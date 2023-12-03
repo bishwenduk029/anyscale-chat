@@ -1,5 +1,5 @@
-<a href="https://chat.vercel.ai/">
-  ![Alt text](image.png)
+<a href="https://anyscale-chat.vercel.app/">
+  <img alt="Next.js 14 and App Router-ready AI chatbot." src="https://anyscale-chat.vercel.app/opengraph-image.png">
   <h1 align="center">Llama models powered AI Chatbot</h1>
 </a>
 
