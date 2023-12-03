@@ -110,6 +110,7 @@ export function Chat({ id, initialMessages, className }: ChatProps) {
             </DialogDescription>
           </DialogHeader>
           <Input
+            type='password'
             value={previewTokenInput}
             placeholder="Anyscale Endpoint API key"
             onChange={e => setPreviewTokenInput(e.target.value)}
