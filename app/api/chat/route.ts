@@ -7,27 +7,38 @@ import { nanoid } from '@/lib/utils'
 
 export const runtime = 'edge'
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+const anyscaleAI = new OpenAI({
+  baseURL: "https://api.endpoints.anyscale.com/v1",
+  apiKey: process.env.ANYSCALE_API_KEY
 })
 
 export async function POST(req: Request) {
   const json = await req.json()
-  const { messages, previewToken } = json
-  const userId = (await auth())?.user.id
+  const { messages, previewToken, selectedModel } = json
+  // const userId = (await auth())?.user.id
 
-  if (!userId) {
-    return new Response('Unauthorized', {
-      status: 401
+  // if (!userId) {
+  //   return new Response('Unauthorized', {
+  //     status: 401
+  //   })
+  // }
+
+  if (previewToken) {
+    anyscaleAI.apiKey = previewToken
+  } else {
+      return new Response('Anyscale Endpoint Token missing', {
+      status: 400
     })
   }
 
-  if (previewToken) {
-    openai.apiKey = previewToken
+  if(!selectedModel) {
+    return new Response('Model not selected', {
+      status: 400
+    })
   }
 
-  const res = await openai.chat.completions.create({
-    model: 'gpt-3.5-turbo',
+  const res = await anyscaleAI.chat.completions.create({
+    model: selectedModel,
     messages,
     temperature: 0.7,
     stream: true
@@ -42,7 +53,6 @@ export async function POST(req: Request) {
       const payload = {
         id,
         title,
-        userId,
         createdAt,
         path,
         messages: [
@@ -53,11 +63,11 @@ export async function POST(req: Request) {
           }
         ]
       }
-      await kv.hmset(`chat:${id}`, payload)
-      await kv.zadd(`user:chat:${userId}`, {
-        score: createdAt,
-        member: `chat:${id}`
-      })
+      // await kv.hmset(`chat:${id}`, payload)
+      // await kv.zadd(`user:chat:${userId}`, {
+      //   score: createdAt,
+      //   member: `chat:${id}`
+      // })
     }
   })
 

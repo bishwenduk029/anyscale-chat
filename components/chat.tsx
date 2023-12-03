@@ -35,7 +35,12 @@ export function Chat({ id, initialMessages, className }: ChatProps) {
     'ai-token',
     null
   )
-  const [previewTokenDialog, setPreviewTokenDialog] = useState(IS_PREVIEW)
+  const [selectedModel, setSelectedModel] = useLocalStorage<string | null>(
+    'selected-llama-model',
+    null
+  )
+  console.log(selectedModel)
+  const [previewTokenDialog, setPreviewTokenDialog] = useState(true)
   const [previewTokenInput, setPreviewTokenInput] = useState(previewToken ?? '')
   const { messages, append, reload, stop, isLoading, input, setInput } =
     useChat({
@@ -43,7 +48,8 @@ export function Chat({ id, initialMessages, className }: ChatProps) {
       id,
       body: {
         id,
-        previewToken
+        previewToken,
+        selectedModel
       },
       onResponse(response) {
         if (response.status === 401) {
@@ -57,6 +63,10 @@ export function Chat({ id, initialMessages, className }: ChatProps) {
         }
       }
     })
+
+  const handleModelChange = (newModel: string) => {
+    setSelectedModel(newModel)
+  }
   return (
     <>
       <div className={cn('pb-[200px] pt-4 md:pt-10', className)}>
@@ -78,21 +88,22 @@ export function Chat({ id, initialMessages, className }: ChatProps) {
         messages={messages}
         input={input}
         setInput={setInput}
+        handleModelChange={handleModelChange}
       />
 
-      <Dialog open={previewTokenDialog} onOpenChange={setPreviewTokenDialog}>
+      <Dialog open={previewTokenDialog && !previewToken} onOpenChange={setPreviewTokenDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Enter your OpenAI Key</DialogTitle>
+            <DialogTitle className='mb-3'>Enter your Anyscale Endpoint Key</DialogTitle>
             <DialogDescription>
-              If you have not obtained your OpenAI API key, you can do so by{' '}
+              If you have not obtained your Anyscale Endpoint API key, you can do so by{' '}
               <a
-                href="https://platform.openai.com/signup/"
+                href="https://www.anyscale.com/endpoints"
                 className="underline"
               >
                 signing up
               </a>{' '}
-              on the OpenAI website. This is only necessary for preview
+              on the Anyscale website. This is only necessary for preview
               environments so that the open source community can test the app.
               The token will be saved to your browser&apos;s local storage under
               the name <code className="font-mono">ai-token</code>.
@@ -100,7 +111,7 @@ export function Chat({ id, initialMessages, className }: ChatProps) {
           </DialogHeader>
           <Input
             value={previewTokenInput}
-            placeholder="OpenAI API key"
+            placeholder="Anyscale Endpoint API key"
             onChange={e => setPreviewTokenInput(e.target.value)}
           />
           <DialogFooter className="items-center">
