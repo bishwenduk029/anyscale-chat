@@ -8,7 +8,7 @@ import { nanoid } from '@/lib/utils'
 export const runtime = 'edge'
 
 const anyscaleAI = new OpenAI({
-  baseURL: "https://api.endpoints.anyscale.com/v1",
+  baseURL: 'https://api.endpoints.anyscale.com/v1',
   apiKey: process.env.ANYSCALE_API_KEY
 })
 
@@ -26,12 +26,12 @@ export async function POST(req: Request) {
   if (previewToken) {
     anyscaleAI.apiKey = previewToken
   } else {
-      return new Response('Anyscale Endpoint Token missing', {
+    return new Response('Anyscale Endpoint Token missing', {
       status: 400
     })
   }
 
-  if(!selectedModel) {
+  if (!selectedModel) {
     return new Response('Model not selected', {
       status: 400
     })
@@ -71,5 +71,10 @@ export async function POST(req: Request) {
     }
   })
 
-  return new StreamingTextResponse(stream)
+  return new Response(stream, {
+    headers: {
+      'Content-Type': 'text/event-stream',
+      'X-Content-Type-Options': 'nosniff'
+    }
+  })
 }
